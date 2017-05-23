@@ -1,0 +1,2 @@
+# dropbox_simulation
+Un problema que presentan los diferentes sistemas de sincronización de archivos (como DropBox, LiveDrive y SugarSync) es que solo funcionan conectados al Internet. Desde antes existían aplicaciones sencillas que permitían sincronizar máquinas en una red sin conectarse a la Web (por ejemplo, una laptop y una computadora de escritorio). En este proyecto se pretende desarrollar una pequeña herramienta que permita la sincronización de un directorio entre dos máquinas.
