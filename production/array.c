@@ -26,6 +26,31 @@ void insertArray(Array *a, file_data element)
     a->array[a->used++] = element;
 }
 
+int findArray(Array *a, int n, char* file_name)
+{
+    int i = 0, j = n - 1 ;
+    int ret;
+    
+    while (i <= j)
+    {
+        int k = (i + j) / 2;
+        ret = strcmp(a->array[k].name, file_name);
+        
+        if (ret > 0)
+        {
+            j = k - 1;
+        } else if (ret < 0)
+        {
+            i = k + 1;
+        }
+        else
+        {
+            return k;
+        }
+    }
+    return -1;
+}
+
 
 
 void saveToFile(char *filename, Array *a)

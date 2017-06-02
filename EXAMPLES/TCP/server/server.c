@@ -110,9 +110,9 @@ else
         connfd = accept(listenfd, (struct sockaddr*)&c_addr,&clen);
         if(connfd<0)
         {
-	  printf("Error in accept\n");
-	  continue;	
-	}
+    	  printf("Error in accept\n");
+    	  continue;	
+    	}
         err = pthread_create(&tid, NULL, &SendFileToClient, &connfd);
         if (err != 0)
             printf("\ncan't create thread :[%s]", strerror(err));

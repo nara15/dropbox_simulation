@@ -75,8 +75,8 @@ int main(void)
     printf("%s %i %i\n", files.array[4].name, files.array[0].size, files.array[0].modification_time_data.year);
     printf("%s %i %i\n", files.array[5].name, files.array[0].size, files.array[0].modification_time_data.year);
   
-    
-    
+    int i = findArray(&files, 6, "array.c");
+    printf("Hola %i \n", i);
     freeArray(&files);
    
 }
