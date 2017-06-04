@@ -20,6 +20,7 @@ typedef struct
         int month;
         int year; 
     } modification_time_data;
+    time_t modification_time;
 
 } file_data;
 

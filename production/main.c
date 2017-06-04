@@ -121,9 +121,6 @@ int main(void)
 
     freeArray(&a);
     
-    
-    
-    
     initArray(&a, 8);
     readFromFile("hola.bin", &a);
     
