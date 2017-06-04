@@ -15,7 +15,18 @@ int filter(const struct dirent * dir)
     if (s[0] == '.') return 0;
     return 1;
 }
-
+void writeFileNumber(char * filename, int n)
+{
+    FILE *in = fopen(filename, "w");
+    fprintf(in, "%i\n", n); 
+}
+int readFileCount(char *filename)
+{
+    int n;
+    FILE *in = fopen(filename, "r");
+    fscanf(in, "%i", &n); 
+    return n;
+}
 void scanFilesFromDirectory(Array *files, struct dirent **namelist, int n)
 {
     struct stat statBuffer;
@@ -49,34 +60,50 @@ void scanFilesFromDirectory(Array *files, struct dirent **namelist, int n)
 int main(void)
 {
     Array files;
+    Array current_files;
     
-  /*
+ /* 
     struct dirent **namelist;
     int n;
     n = scandir(".", &namelist, &filter, alphasort);
     initArray(&files, n);
     scanFilesFromDirectory(&files, namelist, n);
-    printf("%s %i\n", files.array[0].name, files.array[0].size);
-    printf("%s %i\n", files.array[1].name, files.array[1].size);
-    printf("%s %i\n", files.array[2].name, files.array[2].size);
-    printf("%s %i\n", files.array[3].name, files.array[3].size);
-    printf("%s %i\n", files.array[4].name, files.array[4].size);
-    printf("%s %i\n", files.array[5].name, files.array[5].size);
     saveToFile(".meta/files_data.bin", &files);
- */   
-    
+    writeFileNumber(".meta/count.bin", n); 
+    */
   
-    initArray(&files, 6);
+  
+  
+    //  Listado anterior  
+    int n = readFileCount(".meta/count.bin");
+    initArray(&files, n);
     readFromFile(".meta/files_data.bin", &files);
-    printf("%s %i %i\n", files.array[0].name, files.array[0].size, files.array[0].modification_time_data.year);
-    printf("%s %i %i\n", files.array[1].name, files.array[0].size, files.array[0].modification_time_data.year);
-    printf("%s %i %i\n", files.array[2].name, files.array[0].size, files.array[0].modification_time_data.year);
-    printf("%s %i %i\n", files.array[3].name, files.array[0].size, files.array[0].modification_time_data.year);
-    printf("%s %i %i\n", files.array[4].name, files.array[0].size, files.array[0].modification_time_data.year);
-    printf("%s %i %i\n", files.array[5].name, files.array[0].size, files.array[0].modification_time_data.year);
-  
-    int i = findArray(&files, 6, "array.c");
-    printf("Hola %i \n", i);
+    
+    
+    struct dirent **namelist;
+    int np;
+    np = scandir(".", &namelist, &filter, alphasort);
+    initArray(&current_files, np);
+    scanFilesFromDirectory(&current_files, namelist, np);
+    
+
+    int i;
+    for (i = 0; i < n; i++)
+    {
+        printf("%s %i %i\n", files.array[i].name, files.array[i].size, files.array[i].modification_time_data.year);
+    }
+    printf(" Actualmente hay %i archivos ========================================\n", np);
+    for (i = 0; i < np; i++)
+    {
+        printf("%s %i %i\n", current_files.array[i].name, files.array[i].size, files.array[i].modification_time_data.hour);
+    }
+    
+    printf(" Y la diferencia ========================================\n");
+    diff(&files, n, &current_files, np);
+   
+    
     freeArray(&files);
+    
+    freeArray(&current_files);
    
 }

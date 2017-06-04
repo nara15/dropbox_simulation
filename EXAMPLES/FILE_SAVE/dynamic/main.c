@@ -32,11 +32,10 @@ int main(void)
         fscanf(in, "%f", &cars[i].mass);
         fscanf(in, "%i", &cars[i].price);
     }
-    
-    
+
     printf("%i\n", n);
     printf("%s\n", cars[0].name);
-     printf("%s\n", cars[0].color);
+    printf("%s\n", cars[0].color);
     
     fclose(in);
     free(cars);

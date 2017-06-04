@@ -1,7 +1,6 @@
 
 #include "array.h"
 
-
 void initArray(Array *a, size_t initSize)
 {
     a->array = (file_data *)malloc(initSize * sizeof(file_data));
@@ -30,11 +29,10 @@ int findArray(Array *a, int n, char* file_name)
 {
     int i = 0, j = n - 1 ;
     int ret;
-    
     while (i <= j)
     {
         int k = (i + j) / 2;
-        ret = strcmp(a->array[k].name, file_name);
+        ret = strcmp(a -> array[k].name, file_name);
         
         if (ret > 0)
         {
