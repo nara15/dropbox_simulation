@@ -4,6 +4,19 @@
 #include <stdlib.h>
 
 
+void actLikeClient(char *directory, char *hostname)
+{
+    printf("This is the client\n");
+	printf("The directory is: %s , and the server is: %s\n", directory, hostname);
+}
+
+void actLikeServer(char *directory)
+{
+    printf("This is ther server\n");
+	printf("The directory is: %s\n", directory);
+}
+
+
 int main(int argc, char **argv)
 {
 	char ch;
@@ -24,21 +37,22 @@ int main(int argc, char **argv)
         }
     }
     
-    //  Decide roll
+    //  Decide roll for the program
 	if(!host && dir) 
 	{
-	    printf("This is ther server\n");
-		printf("The directory is: %s\n", dir);
+	    actLikeServer(dir);
+	    
 	} else if (host && dir)
 	{
-	    printf("This is the client\n");
-	    printf("The directory is: %s , and the server is: %s\n", dir, host);
+	    actLikeClient(dir, host) ;
 	}
 	else
 	{
 	    fprintf(stderr, "Bad option\n");
 	    exit(1);
 	}
+	
+	return 0 ;
 	
     
 }
