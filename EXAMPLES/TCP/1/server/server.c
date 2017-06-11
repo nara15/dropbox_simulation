@@ -44,7 +44,7 @@ void* SendFileToClient(int *arg)
         {
             if (feof(fp))
         	{
-                        printf("End of file\n");
+                printf("End of file\n");
         	    printf("File transfer completed for id: %d\n",connfd);
         	}
             if (ferror(fp))

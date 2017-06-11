@@ -68,7 +68,6 @@ void showFiles(Array *files, int n)
     {
         tm = localtime(&files->array[i].modification_time);
         strftime(datestring, sizeof(datestring), nl_langinfo(D_T_FMT), tm);
-
         printf(" ARCHIVO: %s , TAMAÑO: %i , FECHA DE MODIFICACIÓN : %s |||\n", files->array[i].name, files->array[i].size, datestring);
     }
 

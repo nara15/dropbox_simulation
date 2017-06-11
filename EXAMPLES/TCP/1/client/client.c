@@ -12,6 +12,10 @@ void gotoxy(int x,int y)
  {
  printf("%c[%d;%df",0x1B,y,x);
  }
+ 
+ 
+
+ 
 int main(int argc, char *argv[])
 {
     system("clear");
@@ -52,7 +56,7 @@ else
     printf("Connected to ip: %s : %d\n",inet_ntoa(serv_addr.sin_addr),ntohs(serv_addr.sin_port));
 
    	 /* Create file where data will be stored */
-    	FILE *fp;
+    FILE *fp;
 	char fname[100];
 	read(sockfd, fname, 256);
 	//strcat(fname,"AK");
@@ -71,7 +75,7 @@ else
         sz++;
         gotoxy(0,4);
         printf("Received: %llf Mb",(sz/1024));
-	fflush(stdout);
+	    fflush(stdout);
         // recvBuff[n] = 0;
         fwrite(recvBuff, 1,bytesReceived,fp);
         // printf("%s \n", recvBuff);

@@ -23,12 +23,22 @@ int main(int argc, char **argv)
                 exit(1);
         }
     }
-	//Sanitize inputs.
-	if(!host || !dir) {
-		fprintf(stderr, "Usage: dbclient -h <server hostname> -d <directory>\n");
-		exit(1);
+    
+    //  Decide roll
+	if(!host && dir) 
+	{
+	    printf("This is ther server\n");
+		printf("The directory is: %s\n", dir);
+	} else if (host && dir)
+	{
+	    printf("This is the client\n");
+	    printf("The directory is: %s , and the server is: %s\n", dir, host);
+	}
+	else
+	{
+	    fprintf(stderr, "Bad option\n");
+	    exit(1);
 	}
 	
-	printf("%s\n", dir);
     
 }
