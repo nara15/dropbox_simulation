@@ -20,6 +20,8 @@ void writeFileNumber(char * filename, int n)
     fprintf(in, "%i\n", n); 
     fclose(in);
 }
+
+
 int readFileCount(char *filename)
 {
     int n;
@@ -28,6 +30,15 @@ int readFileCount(char *filename)
     fclose(in);
     return n;
 }
+
+/**
+ * Esta función escanea la lista de archivos obtenidas en scandir y las almacena
+ * en la estructura <<file_data>>
+ * @Param: files : puntero a un arreglo de archivos.
+ * @Param: namelist : puntero al resultado de la función scandir.
+ * @Param: n : cantidad de archivos por leer.
+ * @Return: None
+ **/
 void scanFilesFromDirectory(Array *files, struct dirent **namelist, int n)
 {
     struct stat statBuffer;
@@ -50,6 +61,12 @@ void scanFilesFromDirectory(Array *files, struct dirent **namelist, int n)
     free(namelist);
     printf("%i\n", n);
 }
+
+/**
+ * Muestra los archivos del directorio, estos archivos están en una lista previa.
+ * @Param: files : punterio al arreglo con los archivos
+ * @Param: n : cantidad de archivos por imprimir.
+ **/
 void showFiles(Array *files, int n)
 {
     int i;
