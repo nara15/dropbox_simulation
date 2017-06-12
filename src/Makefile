@@ -4,7 +4,7 @@ CFLAGS= -DPORT=$(PORT) -g -Wall
 
 all: main_sync test
 
-main_sync : main_sync.o procs.o server.o client.o structs.o
+main_sync : main_sync.o procs.o structs.o
 	gcc ${CFLAGS} -o $@ $^
 
 test :  test.o procs.o structs.o

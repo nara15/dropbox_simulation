@@ -3,16 +3,23 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+#include "server.c"
+#include "client.c"
+#include "structs.h"
+
+
 
 void actLikeClient(char *directory, char *hostname)
 {
+    init_client(hostname);
     printf("This is the client\n");
 	printf("The directory is: %s , and the server is: %s\n", directory, hostname);
 }
 
 void actLikeServer(char *directory)
 {
-    printf("This is ther server\n");
+    init_server() ;
+    printf("This is the server\n");
 	printf("The directory is: %s\n", directory);
 }
 
@@ -32,10 +39,12 @@ int main(int argc, char **argv)
                 dir = optarg;
                 break;
             default:
-                fprintf(stderr, "Usage: dbclient -h <server hostname> -d <directory>\n");
+                fprintf(stderr, "Uso: CLIENT -> ./program -h <server hostname> -d <directory>\n SERVER -> ./program -d <directory> \n");
                 exit(1);
         }
     }
+    
+    createMeta();
     
     //  Decide roll for the program
 	if(!host && dir) 
@@ -48,7 +57,7 @@ int main(int argc, char **argv)
 	}
 	else
 	{
-	    fprintf(stderr, "Bad option\n");
+	    fprintf(stderr, "Error \n Uso: CLIENT -> ./program -h <server hostname> -d <directory>\n SERVER -> ./program -d <directory> \n");
 	    exit(1);
 	}
 	

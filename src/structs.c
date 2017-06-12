@@ -52,6 +52,18 @@ int findArray(Array *a, int n, char* file_name)
     return -1;
 }
 
+// =================== UTILS ===================================================
+
+void createMeta()
+{
+    struct stat st = {0};
+    
+    if (stat(".meta/", &st) == -1) 
+    {
+        mkdir(".meta/", 0700);
+    }
+}
+
 //  ================== UTILS FOR FILE STORAGE ==================================
 
 void saveToFile(char *filename, Array *a)

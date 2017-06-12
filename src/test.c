@@ -31,7 +31,6 @@ int readFileCount(char *filename)
 void scanFilesFromDirectory(Array *files, struct dirent **namelist, int n)
 {
     struct stat statBuffer;
-    //struct tm *tm;
     int i = 0;
     
     while (i < n)
@@ -40,7 +39,6 @@ void scanFilesFromDirectory(Array *files, struct dirent **namelist, int n)
         
         file_data file;
         strcpy( file.name, namelist[i] -> d_name);
-        //tm = localtime(&statBuffer.st_mtime);
         file.modification_time = statBuffer.st_mtime;
         file.size = statBuffer.st_size;
         insertArray(files, file);
@@ -76,7 +74,7 @@ int main(void)
     initArray(&added_files, 1);
     initArray(&modified_files, 1);
     
-    /*
+    
     struct dirent **namelist;
     int n;
     n = scandir(".", &namelist, &filter, alphasort);
@@ -86,10 +84,11 @@ int main(void)
     writeFileNumber(".meta/count.bin", n); 
     
     showFiles(&files, n);
-    */
+    
 
     //  Listado anterior  
     
+    /*
     int n = readFileCount(".meta/count.bin");
     initArray(&files, n);
     readFromFile(".meta/files_data.bin", &files);
@@ -120,7 +119,7 @@ int main(void)
     diffModified(&files, n, &current_files, np, &modified_files);
     printf("EN COMÚN modificados (%i) ============================================\n", (int)modified_files.used);
     showFiles(&modified_files, (int)modified_files.used);
-   
+   */
    
    
     freeArray(&current_files);

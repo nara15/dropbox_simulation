@@ -1,6 +1,11 @@
 #ifndef STRUCTS_H_
 #define STRUCTS_H_
 
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <unistd.h>
+
+
 #include <stdlib.h>
 #include <stdio.h>
 
@@ -36,6 +41,7 @@ void initArray(Array *a, size_t initSize);
 void freeArray(Array *a);
 void insertArray(Array *a, file_data element);
 
+void createMeta();
 
 void saveToFile(char *filename, Array *a);
 void readFromFile(char *filename, Array * a);
