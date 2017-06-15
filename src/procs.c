@@ -1,6 +1,9 @@
 
 #include "structs.h"
+
 #include <string.h>
+#include <sys/stat.h>
+#include <dirent.h>
 
 int in_set( Array *a, int len,  char *match);
 void diff(Array *x, int lenx, Array *y, int leny, Array *res);
@@ -43,7 +46,6 @@ void diff(Array *x, int lenx, Array *y, int leny, Array *res)
 	}
 }
 
-
 /**
  * Realiza la búsqueda de los archivos que ha sido modificados.
  * Compara el listado actual del directorio y el listado anterior
@@ -74,3 +76,67 @@ void diff(Array *x, int lenx, Array *y, int leny, Array *res)
         
     }
  }
+
+
+
+// =============================================================================
+/**
+ * Esta función escanea la lista de archivos obtenidas en scandir y las almacena
+ * en la estructura <<file_data>>
+ * @Param: files : puntero a un arreglo de archivos.
+ * @Param: namelist : puntero al resultado de la función scandir.
+ * @Param: n : cantidad de archivos por leer.
+ * @Return: None
+ **/
+void scanFilesFromDirectory(Array *files, struct dirent **namelist, int n)
+{
+    struct stat statBuffer;
+    int i = 0;
+    
+    while (i < n)
+    {
+        if (stat(namelist[i] -> d_name, &statBuffer) == -1) continue;
+        
+        file_data file;
+        strcpy( file.name, namelist[i] -> d_name);
+        file.modification_time = statBuffer.st_mtime;
+        file.size = statBuffer.st_size;
+        insertArray(files, file);
+        
+        free(namelist[i]);
+        
+        i ++;
+    }
+    free(namelist);
+    printf("%i\n", n);
+}
+
+/**
+ * Escribe la cantidad de archivos del directorio, en un archivo 
+ * @param : filename : nombre del archivo
+ * @param : n : cantidad por escribir en el archivo
+ **/
+void writeFileNumber(char * filename, int n)
+{
+    FILE *in = fopen(filename, "w");
+    fprintf(in, "%i\n", n); 
+    fclose(in);
+}
+
+/**
+ * Obtiene la cantidad de archivos en un directorio, en tiempo dado, del archivo
+ * @param : filename : nombre del archivo 
+ * @return : la catidad de archivos - 0 si no existe el archivo.
+ **/
+int readFileCount(char *filename)
+{
+    int n;
+    FILE *in = fopen(filename, "r");
+    if (in != NULL)
+    {
+        fscanf(in, "%i", &n); 
+        fclose(in);
+        return n; 
+    }
+    return 0 ; 
+}

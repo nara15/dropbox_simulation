@@ -19,13 +19,19 @@ typedef struct
 
 } file_data;
 
-struct sync_message 
+struct sync_file_message 
 {
 	char filename[1000];
 	long int mtime;
 	int size;
 	unsigned char fileBuff[1024];
-};
+} ;
+
+struct sync_message 
+{
+    char message[1000];
+    int empty_directory ;
+} ;
 
 typedef struct
 {

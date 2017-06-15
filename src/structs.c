@@ -76,8 +76,8 @@ void saveToFile(char *filename, Array *a)
             fprintf(stderr, "Failed to write to %s\n", filename);
             exit(1);
         }
-        fclose(ofp);
     }
+    fclose(ofp);
 }
 
 void readFromFile(char *filename, Array * a)

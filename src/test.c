@@ -8,59 +8,19 @@
 
 #include "structs.h"
 
+
+void scanFilesFromDirectory(Array *files, struct dirent **namelist, int n) ;
+void writeFileNumber(char * filename, int n) ;
+int readFileCount(char *filename) ;
+
+
 int filter(const struct dirent * dir)
 {
     const char *s = dir -> d_name;
     if (s[0] == '.') return 0;
     return 1;
 }
-void writeFileNumber(char * filename, int n)
-{
-    FILE *in = fopen(filename, "w");
-    fprintf(in, "%i\n", n); 
-    fclose(in);
-}
 
-
-int readFileCount(char *filename)
-{
-    int n;
-    FILE *in = fopen(filename, "r");
-    fscanf(in, "%i", &n); 
-    fclose(in);
-    return n;
-}
-
-/**
- * Esta función escanea la lista de archivos obtenidas en scandir y las almacena
- * en la estructura <<file_data>>
- * @Param: files : puntero a un arreglo de archivos.
- * @Param: namelist : puntero al resultado de la función scandir.
- * @Param: n : cantidad de archivos por leer.
- * @Return: None
- **/
-void scanFilesFromDirectory(Array *files, struct dirent **namelist, int n)
-{
-    struct stat statBuffer;
-    int i = 0;
-    
-    while (i < n)
-    {
-        if (stat(namelist[i] -> d_name, &statBuffer) == -1) continue;
-        
-        file_data file;
-        strcpy( file.name, namelist[i] -> d_name);
-        file.modification_time = statBuffer.st_mtime;
-        file.size = statBuffer.st_size;
-        insertArray(files, file);
-        
-        free(namelist[i]);
-        
-        i ++;
-    }
-    free(namelist);
-    printf("%i\n", n);
-}
 
 /**
  * Muestra los archivos del directorio, estos archivos están en una lista previa.
@@ -87,6 +47,7 @@ int main(void)
 {
     Array files, current_files, deleted_files, added_files, modified_files;
     
+    initArray(&current_files, 1);
     initArray(&deleted_files, 1);
     initArray(&added_files, 1);
     initArray(&modified_files, 1);
@@ -140,10 +101,11 @@ int main(void)
    
    
     freeArray(&current_files);
-    freeArray(&files);
     freeArray(&deleted_files);
     freeArray(&added_files);
     freeArray(&modified_files);
+    
+    freeArray(&files);
     
     return 0 ;
 

@@ -9,18 +9,19 @@
 
 
 
+
 void actLikeClient(char *directory, char *hostname)
 {
-    init_client(hostname);
     printf("This is the client\n");
 	printf("The directory is: %s , and the server is: %s\n", directory, hostname);
+    init_client(hostname);
 }
 
 void actLikeServer(char *directory)
 {
-    init_server() ;
     printf("This is the server\n");
 	printf("The directory is: %s\n", directory);
+    init_server() ;
 }
 
 
