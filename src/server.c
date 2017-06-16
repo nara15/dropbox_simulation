@@ -19,10 +19,15 @@ ssize_t Readn(int fd, void *ptr, size_t nbytes) ;
 int readFileCount(char *filename) ;
 
 
+
 int filter(const struct dirent * dir)
 {
+    //struct stat st;
+    //stat(dir->d_name, &st);
+    
     const char *s = dir -> d_name;
     if (s[0] == '.') return 0;
+    //else if (st.st_mode & S_IFDIR) return 0 ;
     return 1;
 }
 

@@ -14,7 +14,7 @@ void actLikeClient(char *directory, char *hostname)
 {
     printf("This is the client\n");
 	printf("The directory is: %s , and the server is: %s\n", directory, hostname);
-    init_client(hostname);
+    init_client(hostname, directory);
 }
 
 void actLikeServer(char *directory)
@@ -47,7 +47,7 @@ int main(int argc, char **argv)
     
     createMeta();
     
-    //  Decide roll for the program
+    //  Decidir el rol del programa
 	if(!host && dir) 
 	{
 	    actLikeServer(dir);

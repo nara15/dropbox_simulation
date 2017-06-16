@@ -88,27 +88,32 @@ void diff(Array *x, int lenx, Array *y, int leny, Array *res)
  * @Param: n : cantidad de archivos por leer.
  * @Return: None
  **/
-void scanFilesFromDirectory(Array *files, struct dirent **namelist, int n)
+void scanFilesFromDirectory(Array *files, struct dirent **namelist, int n, char *directory)
 {
     struct stat statBuffer;
     int i = 0;
     
     while (i < n)
     {
-        if (stat(namelist[i] -> d_name, &statBuffer) == -1) continue;
+        char src[50];
+        strcpy(src,  directory);
+        strcat(src, namelist[i] -> d_name);
         
-        file_data file;
-        strcpy( file.name, namelist[i] -> d_name);
-        file.modification_time = statBuffer.st_mtime;
-        file.size = statBuffer.st_size;
-        insertArray(files, file);
+        if (stat(src, &statBuffer) != -1) 
+        {
+            file_data file;
+            strcpy( file.name, namelist[i] -> d_name);
+            strcpy( file.path, src) ;
+            file.modification_time = statBuffer.st_mtime;
+            file.size = statBuffer.st_size;
+            insertArray(files, file);
+        }
         
         free(namelist[i]);
-        
         i ++;
     }
     free(namelist);
-    printf("%i\n", n);
+    
 }
 
 /**

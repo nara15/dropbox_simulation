@@ -14,6 +14,7 @@
 typedef struct
 {
     char name[100];
+    char path[500];
     int size;
     time_t modification_time;
 
