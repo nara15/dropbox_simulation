@@ -9,21 +9,9 @@
 #include "structs.h"
 
 
-void scanFilesFromDirectory(Array *files, struct dirent **namelist, int n) ;
+void scanFilesFromDirectory(Array *files, struct dirent **namelist, int n, char *directory) ;
 void writeFileNumber(char * filename, int n) ;
 int readFileCount(char *filename) ;
-
-
-int filter(const struct dirent * dir)
-{
-    struct stat st;
-    stat(dir->d_name, &st);
-    
-    const char *s = dir -> d_name;
-    if (s[0] == '.') return 0;
-    else if (st.st_mode & S_IFDIR) return 0 ;
-    return 1;
-}
 
 
 /**
@@ -61,7 +49,7 @@ int main(void)
     int n;
     n = scandir(".", &namelist, &filter, alphasort);
     initArray(&files, n);
-    scanFilesFromDirectory(&files, namelist, n);
+    scanFilesFromDirectory(&files, namelist, n, "./");
     saveToFile(".meta/files_data.bin", &files);
     writeFileNumber(".meta/count.bin", n); 
     

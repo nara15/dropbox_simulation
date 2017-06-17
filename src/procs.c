@@ -9,6 +9,8 @@ int in_set( Array *a, int len,  char *match);
 void diff(Array *x, int lenx, Array *y, int leny, Array *res);
 void diffModified(Array *x, int lenx, Array *y, int leny, Array *res);
 
+ void compare(char *directory, Array *added_files, Array *modified_files, Array *deleted_files) ;
+
 /**
  *  Determina si un elemento se encuentra en un listado de directorio
  **/
@@ -80,6 +82,8 @@ void diff(Array *x, int lenx, Array *y, int leny, Array *res)
 
 
 // =============================================================================
+
+
 /**
  * Esta función escanea la lista de archivos obtenidas en scandir y las almacena
  * en la estructura <<file_data>>
@@ -98,7 +102,6 @@ void scanFilesFromDirectory(Array *files, struct dirent **namelist, int n, char 
         char src[50];
         strcpy(src,  directory);
         strcat(src, namelist[i] -> d_name);
-        
         if (stat(src, &statBuffer) != -1) 
         {
             file_data file;
@@ -145,3 +148,54 @@ int readFileCount(char *filename)
     }
     return 0 ; 
 }
+
+/**
+ *  Registra el estado actual del directorio
+ **/
+void registerFiles(char *directory, Array *files)
+{
+    struct dirent **namelist;
+    int n;
+    n = scandir(directory, &namelist, &filter, alphasort);
+    initArray(files, n);
+    scanFilesFromDirectory(files, namelist, n, directory);
+    saveToFile(".meta/files_data.bin", files);
+    writeFileNumber(".meta/count.bin", n); 
+}
+
+
+/**
+ * Realiza la comparación del directorio actual, con un listado anterior
+ **/
+ void compare(char *directory, Array *added_files, Array *modified_files, Array *deleted_files)
+ {
+    //  Iniciar los arreglos de entrada
+    initArray(deleted_files, 1);
+    initArray(added_files, 1);
+    initArray(modified_files, 1);
+    
+    //  Obtener el listado anterior
+    Array files, current_files ;
+    int n = readFileCount(".meta/count.bin");
+    initArray(&files, n);
+    readFromFile(".meta/files_data.bin", &files);
+    
+    //  Obtener los archivos actuales
+    struct dirent **namelist;
+    int np = scandir(directory, &namelist, &filter, alphasort);
+    initArray(&current_files, np);
+    scanFilesFromDirectory(&current_files, namelist, np, directory);
+    
+    //  Conocer  los archivos eliminados
+    diff(&files, n, &current_files, np, deleted_files) ;
+    
+    //  Conocer los archivos agregados
+    diff(&current_files, np, &files, n, added_files);
+    
+    //  Conocer los archivos modificados 
+    diffModified(&files, n, &current_files, np, modified_files);
+    
+    //  Liberar archivos actuales y anteriores
+    freeArray(&files) ;
+    freeArray(&current_files) ;
+ }

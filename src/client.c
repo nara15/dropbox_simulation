@@ -6,9 +6,9 @@
 #include <netdb.h>
 #include <unistd.h>
 
-#include <dirent.h>
-#include <sys/stat.h>
-#include <sys/types.h>
+//#include <dirent.h>
+//#include <sys/stat.h>
+//#include <sys/types.h>
 
 #include "structs.h"
 
@@ -20,10 +20,8 @@ ssize_t Readn(int fd, void *ptr, size_t nbytes) ;
 
 void scanFilesFromDirectory(Array *files, struct dirent **namelist, int n, char *directory) ;
 void writeFileNumber(char * filename, int n) ;
-
-
-
-
+void registerFiles(char *directory, Array *files) ;
+ void compare(char *directory, Array *added_files, Array *modified_files, Array *deleted_files) ;
 
 
 
@@ -67,15 +65,75 @@ void get_directory_files(char *directory, Array *files)
     } 
     else 
     {
-        struct dirent **namelist;
-        int n;
-        n = scandir(directory, &namelist, &filter, alphasort);
-        initArray(files, n);
-        scanFilesFromDirectory(files, namelist, n, directory);
-        saveToFile(".meta/files_data.bin", files);
-        writeFileNumber(".meta/count.bin", n); 
+        registerFiles(directory, files);
     }
 }
+
+/**
+ * Esta función envia un conjunto de archivos al servidor.
+ * Se debe ejecutar en caso del directorio actual vacío y se debe transmitir multiples archivos
+ * @param : socket : socket con la conexión al servidor.
+ **/
+void send_all_files(int socket, char *directory)
+{
+    Array files ;
+    
+    struct stat fileStat;
+        
+    get_directory_files(directory, &files) ;
+    
+    int i;
+    for (i = 0; i < files.size; i++)
+    {
+        if(stat(files.array[i].path, &fileStat) == 0) 
+        {
+            struct sync_file_message m;
+            m.size = fileStat.st_size;
+            strncpy(m.filename, files.array[i].path, 1000);
+            
+            //  Enviar datos básicos sobre el archivo antes - nombre y tamaño
+            Writen(socket, &m, sizeof(m));
+            
+            //  Se envía el contenido del archivo al servidor
+            send_file(socket, files.array[i].path, fileStat.st_size); 
+        }
+    }
+    
+    freeArray(&files);
+}
+
+
+void process_deleted_files(int socket)
+{
+    char* names[] = {"hola", "mario" ,"casa"} ;
+    int i ;
+    
+    for (i = 0; i < 3; i ++)
+    {
+        struct sync_message sync ;
+        strncpy(sync.message, names[i], 1000);
+        Writen(socket, &sync, sizeof(sync));
+    }
+    
+}
+
+void process_added_files(int socket)
+{
+    char* names[] = {"margarita", "sea" ,"house"} ;
+    int i ;
+    
+    for (i = 0; i < 3; i ++)
+    {
+        struct sync_message sync ;
+        strncpy(sync.message, names[i], 1000);
+        Writen(socket, &sync, sizeof(sync));
+    }
+}
+
+
+
+
+
 /**
  * Realiza la inicialización del lado del cliente.
  * 
@@ -91,10 +149,9 @@ int init_client(char *hostname, char *directory)
         printf("No se pudo conectar al servidor\n") ; 
     }
     printf("El cliente se conectó\n") ;
-
-
-    Array files ;
     
+    //  Iniciar la comunicación con el servidor
+
     struct sync_message handshake ;
     struct sync_message response;
     strncpy(handshake.message, "Sincronizar archivos", 900);
@@ -102,60 +159,30 @@ int init_client(char *hostname, char *directory)
     Writen(sock, &handshake, sizeof(handshake)) ;
     
     int n = Readn(sock, &response, sizeof(response)) ;
-    
+   
     if (n > 0 && response.empty_directory == 1)
     {
-        printf("Se leyó %i y se debería enviar archivos\n",response.empty_directory) ; 
+        send_all_files(sock, directory) ;
+    }
+    else
+    {
+        printf("Procesando los archivos del cliente\n") ;
         
-        char *names[] = {"feo.txt", "feo1.txt", "feo2.txt", "scotch.jpg"} ;
-        struct stat fileStat;
+        Array deleted_files, modified_files, added_files ;
         
-        get_directory_files(directory, &files) ;
+        compare(directory, &added_files, &modified_files, &deleted_files) ;
         
-       
+        if (added_files.used > 0) process_added_files(sock) ;
+        else if (deleted_files.used > 0) process_deleted_files(sock) ;
+        else if (modified_files.used > 0) printf("Hay modificados\n");
+        else printf("NO hay nuevos cambios en el directorio %s \n", directory) ;
         
-        int i;
-        for (i = 0; i < files.size; i++)
-        {
-            if(stat(files.array[i].path, &fileStat) == 0) 
-            {
-
-                struct sync_file_message m;
-                m.size = fileStat.st_size;
-                strncpy(m.filename, files.array[i].name, 1000);
-                
-                //  Enviar datos básicos sobre el archivo antes - nombre y tamaño
-                Writen(sock, &m, sizeof(m));
-                
-                
-                //  Se envía el contenido del archivo al servidor
-                send_file(sock, files.array[i].path, fileStat.st_size); 
-                
-            }
-            
-
-        }
-        
-        /*
-        int i;
-        for (i = 0; i < 4; i++)
-        {
-            if(stat(names[i],&fileStat) < 0) return 1;
-            struct sync_file_message m;
-            m.size = fileStat.st_size;
-            strncpy(m.filename, names[i], 1000);
-            
-            //  Enviar datos básicos sobre el archivo antes - nombre y tamaño
-            Writen(sock, &m, sizeof(m));
-            
-            //  Se envía el contenido del archivo al servidor
-            send_file(sock, names[i], fileStat.st_size);
-
-        }*/
+        freeArray(&deleted_files);
+        freeArray(&added_files);
+        freeArray(&modified_files);
     }
     
     close(sock) ;
-    freeArray(&files);
-    
+ 
     return 0 ;
 }

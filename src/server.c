@@ -17,19 +17,9 @@ void Writen(int fd, void *ptr, size_t nbytes) ;
 ssize_t Readn(int fd, void *ptr, size_t nbytes) ;
 
 int readFileCount(char *filename) ;
+void registerFiles(char *directory, Array *files) ;
 
 
-
-int filter(const struct dirent * dir)
-{
-    //struct stat st;
-    //stat(dir->d_name, &st);
-    
-    const char *s = dir -> d_name;
-    if (s[0] == '.') return 0;
-    //else if (st.st_mode & S_IFDIR) return 0 ;
-    return 1;
-}
 
 /**
  * Configura el socket del servidor. Crea y asocia el socket a un puerto.
@@ -91,13 +81,44 @@ void receive_all_files(int client_socket)
     }
 }
 
+void process_file_changes(int client_socket)
+{
+    struct sync_message received_packet ;
+    
+    /*
+    Array files ;
+    int n = readFileCount(".meta/count.bin");
+    initArray(&files, n);
+    readFromFile(".meta/files_data.bin", &files);
+    freeArray(&files);
+    */
+    
+    for (; ;)
+    {
+        int n = Readn(client_socket, &received_packet, sizeof(received_packet));
+        if (n > 0)
+        {
+            printf("El mensaje es: %s \n", received_packet.message) ;   
+        }
+        else if (n == 0)
+        {
+            puts("Cliente desconectado");
+	        fflush(stdout);
+	        break;
+        }
+    }
+}
+
 
 /**
  * Realiza la inicialización del lado del servidor.
  * 
  **/
-int init_server()
+int init_server(char *directory)
 {
+    //  Crear el directorio
+    createDirectory(directory) ;
+    
     int client_socket , c ;
     struct sockaddr_in client ;
     int socket_desc = setup() ;
@@ -119,6 +140,10 @@ int init_server()
         }
         printf("Conexión aceptada \n") ;
         
+        
+        //  Iniciar la comunicación con el client
+        
+        Array files ;
         struct sync_message handshake , response ;
        
         int n = Readn(client_socket, &handshake, sizeof(handshake)) ;
@@ -126,16 +151,20 @@ int init_server()
         if (n > 0)
         {
             cant_files = readFileCount(".meta/count.bin");
- 
             if (cant_files == 0) response.empty_directory = 1 ;
             else response.empty_directory = 0 ;
  
             Writen(client_socket, &response, sizeof(response));
         }
         
+        //  Como el directorio está vació, recibo todos los archivos
         if (cant_files == 0) receive_all_files(client_socket) ;
-    
+        else if (cant_files > 0) process_file_changes(client_socket) ;
+        
+        
+        registerFiles(directory, &files) ;
         close(client_socket) ;
+        freeArray(&files) ;
         
         return 0 ;
     }

@@ -21,7 +21,7 @@ void actLikeServer(char *directory)
 {
     printf("This is the server\n");
 	printf("The directory is: %s\n", directory);
-    init_server() ;
+    init_server(directory) ;
 }
 
 
@@ -45,7 +45,8 @@ int main(int argc, char **argv)
         }
     }
     
-    createMeta();
+    createDirectory(".meta/");
+    
     
     //  Decidir el rol del programa
 	if(!host && dir) 

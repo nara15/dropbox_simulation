@@ -54,17 +54,27 @@ int findArray(Array *a, int n, char* file_name)
 
 // =================== UTILS ===================================================
 
-void createMeta()
+
+void createDirectory(char *name)
 {
     struct stat st = {0};
-    
-    if (stat(".meta/", &st) == -1) 
+
+    if (stat(name, &st) == -1) 
     {
-        mkdir(".meta/", 0700);
+        mkdir(name, 0700);
     }
 }
 
 //  ================== UTILS FOR FILE STORAGE ==================================
+
+
+int filter(const struct dirent * dir)
+{
+    const char *s = dir -> d_name;
+    if (s[0] == '.') return 0;
+    else if (dir->d_type == DT_DIR) return 0 ;
+    return 1;
+} 
 
 void saveToFile(char *filename, Array *a)
 {
