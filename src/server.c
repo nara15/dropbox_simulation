@@ -20,7 +20,6 @@ int readFileCount(char *filename) ;
 void registerFiles(char *directory, Array *files) ;
 
 
-
 /**
  * Configura el socket del servidor. Crea y asocia el socket a un puerto.
  * @return: listenfd (descriptot del socket) donde se está escuchando al cliente
@@ -75,30 +74,38 @@ void receive_all_files(int client_socket)
 	        fflush(stdout);
 	        break;
         }
-        
+        //  Recibir los archivos del cliente
         get_file(client_socket, received_packet, filesize) ; 
         
     }
 }
 
+/**
+ * Esta funcíon procesa las solicitudes de cambio obtenidas desde el cliente
+ **/
 void process_file_changes(int client_socket)
 {
     struct sync_message received_packet ;
-    
-    /*
-    Array files ;
-    int n = readFileCount(".meta/count.bin");
-    initArray(&files, n);
-    readFromFile(".meta/files_data.bin", &files);
-    freeArray(&files);
-    */
-    
+
     for (; ;)
     {
         int n = Readn(client_socket, &received_packet, sizeof(received_packet));
         if (n > 0)
         {
-            printf("El mensaje es: %s \n", received_packet.message) ;   
+            if (received_packet.added_file == 1) 
+            {
+                printf("Agregando el archivo %s de tamaño %i \n", received_packet.message, received_packet.size) ; 
+                int filesize = received_packet.size ;
+                struct sync_file_message received_file ;
+                strncpy(received_file.filename, received_packet.message, 1000);
+                get_file(client_socket, received_file, filesize) ; 
+            }
+            else if (received_packet.deleted_file == 1) 
+            {
+                printf("Eliminando el archivo %s\n", received_packet.message) ;
+                remove(received_packet.message) ;
+            }
+            else if (received_packet.modified_file == 1) printf("Este archivo fue modificado en el cliente %s\n", received_packet.message);
         }
         else if (n == 0)
         {
@@ -107,6 +114,7 @@ void process_file_changes(int client_socket)
 	        break;
         }
     }
+    
 }
 
 
@@ -157,11 +165,12 @@ int init_server(char *directory)
             Writen(client_socket, &response, sizeof(response));
         }
         
-        //  Como el directorio está vació, recibo todos los archivos
+        //  Como el directorio está vacío, recibo todos los archivos
         if (cant_files == 0) receive_all_files(client_socket) ;
+        //  El directorio del server no está vacío, así que hay que verificar cambios
         else if (cant_files > 0) process_file_changes(client_socket) ;
         
-        
+        //  Registrar el estado en el que queda el directorio
         registerFiles(directory, &files) ;
         close(client_socket) ;
         freeArray(&files) ;

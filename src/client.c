@@ -103,35 +103,50 @@ void send_all_files(int socket, char *directory)
 }
 
 
-void process_deleted_files(int socket)
+void process_deleted_files(int socket, Array *deleted_files)
 {
-    char* names[] = {"hola", "mario" ,"casa"} ;
     int i ;
     
-    for (i = 0; i < 3; i ++)
+    for (i = 0; i < deleted_files->used; i ++)
     {
         struct sync_message sync ;
-        strncpy(sync.message, names[i], 1000);
+        sync.deleted_file = 1 ;
+        strncpy(sync.message, deleted_files->array[i].path, 1000);
         Writen(socket, &sync, sizeof(sync));
+        sync.deleted_file = 0 ;   
+        
     }
     
 }
 
-void process_added_files(int socket)
+void process_added_files(int socket, Array *added_files)
 {
-    char* names[] = {"margarita", "sea" ,"house"} ;
     int i ;
     
-    for (i = 0; i < 3; i ++)
+    for (i = 0; i < added_files->used; i ++)
     {
         struct sync_message sync ;
-        strncpy(sync.message, names[i], 1000);
-        Writen(socket, &sync, sizeof(sync));
+        struct stat fileStat;
+        
+        if(stat(added_files->array[i].path, &fileStat) == 0) 
+        {
+            sync.added_file = 1 ;
+            sync.size = fileStat.st_size ;
+            strncpy(sync.message, added_files->array[i].path, 1000) ;
+            Writen(socket, &sync, sizeof(sync)) ;
+            sync.added_file = 0 ;
+            
+            // Enviar el archivo agregado al servidor
+            send_file(socket, added_files->array[i].path, fileStat.st_size); 
+        }
+        
     }
 }
 
-
-
+void process_modified_files(int socket, Array *modified_files)
+{
+    printf("Hay modificados\n");
+}
 
 
 /**
@@ -171,18 +186,22 @@ int init_client(char *hostname, char *directory)
         Array deleted_files, modified_files, added_files ;
         
         compare(directory, &added_files, &modified_files, &deleted_files) ;
-        
-        if (added_files.used > 0) process_added_files(sock) ;
-        else if (deleted_files.used > 0) process_deleted_files(sock) ;
-        else if (modified_files.used > 0) printf("Hay modificados\n");
-        else printf("NO hay nuevos cambios en el directorio %s \n", directory) ;
+    
+        if (added_files.used > 0) process_added_files(sock, &added_files) ;
+        if (deleted_files.used > 0) process_deleted_files(sock, &deleted_files) ;
+        if (modified_files.used > 0) process_modified_files(sock, &modified_files) ;
+        if (added_files.used == 0 && modified_files.used == 0 && added_files.used == 0) printf("NO hay nuevos cambios en el directorio %s \n", directory) ;
         
         freeArray(&deleted_files);
         freeArray(&added_files);
         freeArray(&modified_files);
     }
     
+    //  Registrar el estado en el que queda el directorio
+    Array files;
+    registerFiles(directory, &files) ;
     close(sock) ;
+    freeArray(&files) ;
  
     return 0 ;
 }

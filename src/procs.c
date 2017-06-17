@@ -163,7 +163,6 @@ void registerFiles(char *directory, Array *files)
     writeFileNumber(".meta/count.bin", n); 
 }
 
-
 /**
  * Realiza la comparación del directorio actual, con un listado anterior
  **/

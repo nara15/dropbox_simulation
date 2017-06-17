@@ -14,11 +14,10 @@
 
 typedef struct
 {
-    char name[100];
-    char path[500];
+    char name[1000];
+    char path[2000];
     int size;
     time_t modification_time;
-
 } file_data;
 
 struct sync_file_message 
@@ -32,7 +31,11 @@ struct sync_file_message
 struct sync_message 
 {
     char message[1000];
+    int size ;
     int empty_directory ;
+    int deleted_file ;
+    int modified_file ;
+    int added_file ;
 } ;
 
 typedef struct
