@@ -12,6 +12,32 @@
 
 //  ESTRUCTURAS ================================================================
 
+
+struct sync_file_message 
+{
+    //  Datos del archivo
+	char filename[1000];
+	time_t mtime;
+	int size;
+	//  Contenido del archivo
+	unsigned char fileBuff[1024];
+} ;
+
+struct sync_message 
+{
+    //  Datos de archivo
+    char message[1000];
+    char name[1000];
+    time_t mtime ;
+    int size ;
+    
+    //  Inidicadores del evento
+    int empty_directory ;
+    int deleted_file ;
+    int modified_file ;
+    int added_file ;
+} ;
+
 typedef struct
 {
     char name[1000];
@@ -19,26 +45,6 @@ typedef struct
     int size;
     time_t modification_time;
 } file_data;
-
-struct sync_file_message 
-{
-	char filename[1000];
-	time_t mtime;
-	int size;
-	unsigned char fileBuff[1024];
-} ;
-
-struct sync_message 
-{
-    char message[1000];
-    char name[1000];
-    time_t mtime ;
-    int size ;
-    int empty_directory ;
-    int deleted_file ;
-    int modified_file ;
-    int added_file ;
-} ;
 
 typedef struct
 {
