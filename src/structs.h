@@ -23,7 +23,7 @@ typedef struct
 struct sync_file_message 
 {
 	char filename[1000];
-	long int mtime;
+	time_t mtime;
 	int size;
 	unsigned char fileBuff[1024];
 } ;
@@ -31,6 +31,8 @@ struct sync_file_message
 struct sync_message 
 {
     char message[1000];
+    char name[1000];
+    time_t mtime ;
     int size ;
     int empty_directory ;
     int deleted_file ;

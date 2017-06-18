@@ -198,3 +198,25 @@ void registerFiles(char *directory, Array *files)
     freeArray(&files) ;
     freeArray(&current_files) ;
  }
+ 
+ /**
+  * Realiza la comparación del directorio actual, con un listado anterior
+  * buscando solo los archivos modificados.
+  **/
+void compare_modified(char *directory, Array *current_files, Array *files, Array *modified_files)
+{
+    initArray(modified_files, 1);
+    
+    int n = readFileCount(".meta/count.bin");
+    initArray(files, n);
+    readFromFile(".meta/files_data.bin", files);
+    
+    //  Obtener los archivos actuales
+    struct dirent **namelist;
+    int np = scandir(directory, &namelist, &filter, alphasort);
+    initArray(current_files, np);
+    scanFilesFromDirectory(current_files, namelist, np, directory);
+    
+    //  Conocer los archivos modificados 
+    diffModified(files, n, current_files, np, modified_files);
+}

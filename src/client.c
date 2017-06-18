@@ -21,7 +21,7 @@ ssize_t Readn(int fd, void *ptr, size_t nbytes) ;
 void scanFilesFromDirectory(Array *files, struct dirent **namelist, int n, char *directory) ;
 void writeFileNumber(char * filename, int n) ;
 void registerFiles(char *directory, Array *files) ;
- void compare(char *directory, Array *added_files, Array *modified_files, Array *deleted_files) ;
+void compare(char *directory, Array *added_files, Array *modified_files, Array *deleted_files) ;
 
 
 
@@ -122,7 +122,6 @@ void process_deleted_files(int socket, Array *deleted_files)
 void process_added_files(int socket, Array *added_files)
 {
     int i ;
-    
     for (i = 0; i < added_files->used; i ++)
     {
         struct sync_message sync ;
@@ -145,7 +144,36 @@ void process_added_files(int socket, Array *added_files)
 
 void process_modified_files(int socket, Array *modified_files)
 {
-    printf("Hay modificados\n");
+    int i ;
+    for (i = 0; i < modified_files->used; i ++)
+    {
+        struct sync_message sync ;
+        file_data file ;
+        strncpy(sync.name, modified_files->array[i].name, 1000);
+        strncpy(sync.message, modified_files->array[i].path, 1000);
+        sync.mtime = modified_files->array[i].modification_time ;
+        sync.size = modified_files->array[i].size ;
+        sync.modified_file = 1 ;
+        
+        Writen(socket, &sync, sizeof(sync)) ;
+        sync.modified_file = 0 ;
+        
+        int n = Readn(socket, &file, sizeof(file));
+       
+        if (file.modification_time == 0)
+        {
+            printf("El archivo está cambiado en ambas partes\n") ;
+        }
+        else if (modified_files -> array[i].modification_time > file.modification_time)
+        {
+            printf("El cliente tiene el más reciente que el servidor\n");
+            send_file(socket, modified_files->array[i].path, modified_files->array[i].size ) ;
+        }
+        else if (modified_files->array[i].modification_time < file.modification_time)
+        {
+            printf("El servidor tiene el màs reciente que el cliente\n");
+        }
+    }
 }
 
 

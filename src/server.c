@@ -19,6 +19,7 @@ ssize_t Readn(int fd, void *ptr, size_t nbytes) ;
 int readFileCount(char *filename) ;
 void registerFiles(char *directory, Array *files) ;
 
+void compare_modified(char *directory, Array *current_files, Array *files, Array *modified_files) ;
 
 /**
  * Configura el socket del servidor. Crea y asocia el socket a un puerto.
@@ -81,9 +82,9 @@ void receive_all_files(int client_socket)
 }
 
 /**
- * Esta funcíon procesa las solicitudes de cambio obtenidas desde el cliente
+ * Esta función procesa las solicitudes de cambio obtenidas desde el cliente
  **/
-void process_file_changes(int client_socket)
+void process_file_changes(int client_socket, char  *directory)
 {
     struct sync_message received_packet ;
 
@@ -105,7 +106,48 @@ void process_file_changes(int client_socket)
                 printf("Eliminando el archivo %s\n", received_packet.message) ;
                 remove(received_packet.message) ;
             }
-            else if (received_packet.modified_file == 1) printf("Este archivo fue modificado en el cliente %s\n", received_packet.message);
+            else if (received_packet.modified_file == 1) 
+            {
+                //  Obtener el listado anterior
+                Array files, current_files, modified_files ;
+                
+                compare_modified(directory, &current_files, &files, &modified_files) ;
+
+                printf("Este archivo fue modificado en el cliente %s\n", received_packet.name);
+                
+                int index = findArray(&current_files, current_files.used, received_packet.name) ;
+                file_data file = current_files.array[index] ;
+                
+                if ((findArray(&modified_files, modified_files.used, received_packet.name)) >= 0)
+                {
+                    file.modification_time = 0 ;
+                }
+            
+                Writen(client_socket, &file, sizeof(file)) ;
+                
+                
+                if (file.modification_time == 0)
+                {
+                    printf("El archivo está cambiado en ambas partes\n") ;
+                }
+                else if (received_packet.mtime > file.modification_time)
+                {
+                    //printf("El cliente tiene el màs reciente que el servidor\n");
+                    struct sync_file_message f ;
+                    strncpy(f.filename, received_packet.message, 1000) ;
+                    fopen(received_packet.message,"wb") ;
+                    get_file(client_socket, f, received_packet.size) ;
+                }
+                else if (received_packet.mtime  < file.modification_time)
+                {
+                    printf("El servidor tiene el màs reciente que el cliente\n");
+                }
+                
+                
+                freeArray(&files) ;
+                freeArray(&current_files) ;
+                freeArray(&modified_files) ;
+            }
         }
         else if (n == 0)
         {
@@ -168,7 +210,7 @@ int init_server(char *directory)
         //  Como el directorio está vacío, recibo todos los archivos
         if (cant_files == 0) receive_all_files(client_socket) ;
         //  El directorio del server no está vacío, así que hay que verificar cambios
-        else if (cant_files > 0) process_file_changes(client_socket) ;
+        else if (cant_files > 0) process_file_changes(client_socket, directory) ;
         
         //  Registrar el estado en el que queda el directorio
         registerFiles(directory, &files) ;
