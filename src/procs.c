@@ -2,14 +2,14 @@
 #include "structs.h"
 
 #include <string.h>
+#include <time.h>
 #include <sys/stat.h>
 #include <dirent.h>
 
 int in_set( Array *a, int len,  char *match);
 void diff(Array *x, int lenx, Array *y, int leny, Array *res);
 void diffModified(Array *x, int lenx, Array *y, int leny, Array *res);
-
- void compare(char *directory, Array *added_files, Array *modified_files, Array *deleted_files) ;
+void compare(char *directory, Array *added_files, Array *modified_files, Array *deleted_files) ;
 
 /**
  *  Determina si un elemento se encuentra en un listado de directorio
@@ -219,4 +219,46 @@ void compare_modified(char *directory, Array *current_files, Array *files, Array
     
     //  Conocer los archivos modificados 
     diffModified(files, n, current_files, np, modified_files);
+}
+
+
+
+
+char *gen_string(int length) 
+{    
+    unsigned int key = 0, n;
+    char *string = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-#87###";
+    size_t stringLen = 69;        
+    char *randomString;
+    
+    /* Intializes random number generator */
+    //srand((unsigned) time(&t));
+
+    randomString = malloc(sizeof(char) * (length +1));
+
+    if (!randomString) return (char*)0;
+    
+    for ( n = 0; n < length; n++) 
+    {            
+        key = rand() % stringLen;          
+        randomString[n] = string[key];
+    }
+
+    randomString[length] = '\0';
+
+    return randomString;
+}
+
+void init_random_seed()
+{
+    srand(time(NULL));
+}
+
+void generateNewName(char *directory, char *oldname, char *newname)
+{
+    char *seed = gen_string(3) ;
+    strcat(newname, directory) ;
+    strcat(seed, oldname) ;
+    strcat(newname, seed);
+    free(seed) ;
 }

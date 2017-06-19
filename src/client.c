@@ -22,7 +22,7 @@ void scanFilesFromDirectory(Array *files, struct dirent **namelist, int n, char 
 void writeFileNumber(char * filename, int n) ;
 void registerFiles(char *directory, Array *files) ;
 void compare(char *directory, Array *added_files, Array *modified_files, Array *deleted_files) ;
-
+void generateNewName(char *directory, char *oldname, char *newname);
 
 
 /**
@@ -142,27 +142,49 @@ void process_added_files(int socket, Array *added_files)
     }
 }
 
-void process_modified_files(int socket, Array *modified_files)
+void process_modified_files(int socket, Array *modified_files, char *directory)
 {
     int i ;
     for (i = 0; i < modified_files->used; i ++)
     {
         struct sync_message sync ;
         file_data file ;
+        
+        //  Preparar los datos del archivo modificado para ser enviados al servidor
         strncpy(sync.name, modified_files->array[i].name, 1000);
         strncpy(sync.message, modified_files->array[i].path, 1000);
         sync.mtime = modified_files->array[i].modification_time ;
         sync.size = modified_files->array[i].size ;
-        sync.modified_file = 1 ;
         
+        //  Enviar los datos del archivo modificado al servidor
+        sync.modified_file = 1 ;
         Writen(socket, &sync, sizeof(sync)) ;
         sync.modified_file = 0 ;
         
+        
+        //  Obtener la respuesta del servidor
         int n = Readn(socket, &file, sizeof(file));
        
         if (file.modification_time == 0)
         {
-            printf("El archivo está cambiado en ambas partes\n") ;
+            char newname[1000];
+            generateNewName(directory,modified_files->array[i].name, newname) ;
+            rename(modified_files->array[i].path, newname) ;
+            //printf("El archivo está cambiado en ambas partes y su nuevo nombre en el cliente es %s\n", newname) ;
+            struct sync_file_message m, received_packet;
+            m.size = modified_files->array[i].size;
+            strncpy(m.filename, newname, 1000);
+            
+            Writen(socket, &m, sizeof(m));
+            
+            int n = Readn(socket, &received_packet, sizeof(received_packet));
+            if (n > 0)
+            {
+                printf("El nombre en el servidor es: %s y su tamaño es %i\n", received_packet.filename, received_packet.size) ;
+                
+                send_file(socket, newname, modified_files->array[i].size) ;
+                get_file(socket, received_packet, received_packet.size);
+            }
         }
         else if (modified_files -> array[i].modification_time > file.modification_time)
         {
@@ -217,7 +239,7 @@ int init_client(char *hostname, char *directory)
     
         if (added_files.used > 0) process_added_files(sock, &added_files) ;
         if (deleted_files.used > 0) process_deleted_files(sock, &deleted_files) ;
-        if (modified_files.used > 0) process_modified_files(sock, &modified_files) ;
+        if (modified_files.used > 0) process_modified_files(sock, &modified_files, directory) ;
         if (added_files.used == 0 && modified_files.used == 0 && added_files.used == 0) printf("NO hay nuevos cambios en el directorio %s \n", directory) ;
         
         freeArray(&deleted_files);

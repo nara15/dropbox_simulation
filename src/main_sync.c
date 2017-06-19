@@ -7,7 +7,7 @@
 #include "client.c"
 #include "structs.h"
 
-
+void init_random_seed();
 
 
 void actLikeClient(char *directory, char *hostname)
@@ -46,7 +46,7 @@ int main(int argc, char **argv)
     }
     
     createDirectory(".meta/");
-    
+    init_random_seed() ;
     
     //  Decidir el rol del programa
 	if(!host && dir) 
