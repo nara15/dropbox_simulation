@@ -38,6 +38,12 @@ int in_set( Array *a, int len,  char *match)
 
 /**
  * Realiza la diferencia entre el listado de dos directorios.
+ * Se lleva acabo la operación A - B sobre dos arreglos de archivos
+ * @param: x : Array -> arreglo A
+ * @param: lenx : tamaño del arreglo x
+ * @param: y : Array -> arreglo B
+ * @param: leny : tamaño del arreglo y
+ * @param: res : Array -> arreglo para almacenar el resultado 
  **/
 void diff(Array *x, int lenx, Array *y, int leny, Array *res)
 {

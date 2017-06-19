@@ -61,7 +61,10 @@ void get_directory_files(char *directory, Array *files)
 {
     if( access( ".meta/files_data.bin", F_OK ) != -1 ) 
     {
-        printf("hay archivos registrados\n");
+        //  Ya existen archivos registrados
+        int n = readFileCount(".meta/count.bin");
+        initArray(files, n);
+        readFromFile(".meta/files_data.bin", files);
     } 
     else 
     {
@@ -103,6 +106,7 @@ void send_all_files(int socket, char *directory)
 }
 
 
+//  Procesar los archivos eliminados
 void process_deleted_files(int socket, Array *deleted_files)
 {
     int i ;
@@ -118,7 +122,7 @@ void process_deleted_files(int socket, Array *deleted_files)
     }
     
 }
-
+//  Procesar los archivos agregados
 void process_added_files(int socket, Array *added_files)
 {
     int i ;
@@ -141,7 +145,7 @@ void process_added_files(int socket, Array *added_files)
         
     }
 }
-
+//Procesar los archivos modificados
 void process_modified_files(int socket, Array *modified_files, char *directory)
 {
     int i ;
