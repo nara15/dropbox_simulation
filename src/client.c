@@ -59,14 +59,14 @@ int connect_to_server(char *hostname)
  **/
 void get_directory_files(char *directory, Array *files)
 {
-    if( access( ".meta/files_data.bin", F_OK ) != -1 ) 
+    int n = readFileCount(".meta/count.bin");
+    
+    if (n > 0)
     {
-        //  Ya existen archivos registrados
-        int n = readFileCount(".meta/count.bin");
         initArray(files, n);
         readFromFile(".meta/files_data.bin", files);
-    } 
-    else 
+    }
+    else
     {
         registerFiles(directory, files);
     }
@@ -181,7 +181,7 @@ void process_modified_files(int socket, Array *modified_files, char *directory)
             
             Writen(socket, &m, sizeof(m));
             
-            int n = Readn(socket, &received_packet, sizeof(received_packet));
+            n = Readn(socket, &received_packet, sizeof(received_packet));
             if (n > 0)
             {
                 printf("El nombre en el servidor es: %s y su tamaño es %i\n", received_packet.filename, received_packet.size) ;

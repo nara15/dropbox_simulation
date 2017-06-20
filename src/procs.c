@@ -163,10 +163,18 @@ void registerFiles(char *directory, Array *files)
     struct dirent **namelist;
     int n;
     n = scandir(directory, &namelist, &filter, alphasort);
-    initArray(files, n);
-    scanFilesFromDirectory(files, namelist, n, directory);
-    saveToFile(".meta/files_data.bin", files);
-    writeFileNumber(".meta/count.bin", n); 
+    if (n > 0)
+    {
+        initArray(files, n);
+        scanFilesFromDirectory(files, namelist, n, directory);
+        saveToFile(".meta/files_data.bin", files);
+        writeFileNumber(".meta/count.bin", n);    
+    }
+    else
+    {
+        writeFileNumber(".meta/count.bin", 0);  
+    }
+    
 }
 
 /**
