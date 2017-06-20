@@ -11,6 +11,9 @@ void diff(Array *x, int lenx, Array *y, int leny, Array *res);
 void diffModified(Array *x, int lenx, Array *y, int leny, Array *res);
 void compare(char *directory, Array *added_files, Array *modified_files, Array *deleted_files) ;
 
+//  FUNCIONES PARA LA COMPARACIÓN DE LISTADOS DE DIRECTORIO ====================
+// =============================================================================
+
 /**
  *  Determina si un elemento se encuentra en un listado de directorio
  **/
@@ -86,7 +89,7 @@ void diff(Array *x, int lenx, Array *y, int leny, Array *res)
  }
 
 
-
+//  FUNCIONES UTILITARIAS PARA MANEJOR DE METADATOS Y ESCANEO DE DIRECTORIO ====
 // =============================================================================
 
 
@@ -237,7 +240,13 @@ void compare_modified(char *directory, Array *current_files, Array *files, Array
 
 
 
+//  FUNCIONES UTILITARIAS PARA GENERACIÓN ALEATORIO DE NOMBRES DE ARCHIVOS
+// =============================================================================
 
+
+/**
+ * Genera una hilera aleatorio
+ **/
 char *gen_string(int length) 
 {    
     unsigned int key = 0, n;
@@ -263,11 +272,17 @@ char *gen_string(int length)
     return randomString;
 }
 
+/**
+ * Inicializa en el sistema la semilla de generación de números random.
+ **/ 
 void init_random_seed()
 {
     srand(time(NULL));
 }
 
+/**
+ * Genera un nuevo nombre con semilla aleatorio para un archivo en un directorio dado.
+ **/
 void generateNewName(char *directory, char *oldname, char *newname)
 {
     char *seed = gen_string(3) ;

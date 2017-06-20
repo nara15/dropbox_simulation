@@ -10,7 +10,7 @@
 
 #include "structs.h"
 
-//  PROTOTIPOS DE LAS FUNCIONES POR USAR
+//  PROTOTIPOS DE LAS FUNCIONES POR USAR =======================================
 void get_file(int soc, struct sync_file_message received_packet, int filesize) ;
 void send_file(int soc, char* filename, int size) ;
 void Writen(int fd, void *ptr, size_t nbytes) ;
@@ -21,6 +21,8 @@ void registerFiles(char *directory, Array *files) ;
 
 void compare_modified(char *directory, Array *current_files, Array *files, Array *modified_files) ;
 void generateNewName(char *directory, char *oldname, char *newname);
+
+// =============================================================================
 
 /**
  * Configura el socket del servidor. Crea y asocia el socket a un puerto.
@@ -55,7 +57,7 @@ int setup()
 /**
  * Esta función recibe un conjunto de archivos.
  * Se debe ejecutar en caso del directorio actual vacío y se debe recibir multiples archivos
- * @param : client_socket : socket con la conexíon al cliente.
+ * @param : client_socket : socket con la conexión al cliente.
  **/
 void receive_all_files(int client_socket)
 {
@@ -83,7 +85,10 @@ void receive_all_files(int client_socket)
 }
 
 /**
- * Esta función procesa las solicitudes de cambio obtenidas desde el cliente
+ * Esta función procesa las solicitudes de cambio obtenidas desde el cliente.
+ * Se debe ejecutar en caso que haya que sincronizar un directorio NO vacío del servidor
+ * @param : client_socket : socket con la conexión al cliente.
+ * @param : directory : directorio que se desea procesar y sincronizar
  **/
 void process_file_changes(int client_socket, char  *directory)
 {
@@ -183,7 +188,8 @@ void process_file_changes(int client_socket, char  *directory)
 
 /**
  * Realiza la inicialización del lado del servidor.
- * 
+ * @param : directory : nombre del directorio que se desea sincronizar
+ * @return : codigo de éxito en la comunicación
  **/
 int init_server(char *directory)
 {
@@ -213,7 +219,6 @@ int init_server(char *directory)
         
         
         //  Iniciar la comunicación con el client
-        
         Array files ;
         struct sync_message handshake , response ;
        
@@ -221,14 +226,16 @@ int init_server(char *directory)
         int cant_files = 0 ;
         if (n > 0)
         {
+            //  Corroborar si el servidor está vacío
             cant_files = readFileCount(".meta/count.bin");
             if (cant_files == 0) response.empty_directory = 1 ;
             else response.empty_directory = 0 ;
- 
+            
+            //  Avisar al cliente que el servidor está vacío y listo para recibir todos los archivos
             Writen(client_socket, &response, sizeof(response));
         }
         
-        //  Como el directorio está vacío, recibo todos los archivos
+        //  Como el directorio está vacío, recibo todos los archivos del cliente
         if (cant_files == 0) receive_all_files(client_socket) ;
         //  El directorio del server no está vacío, así que hay que verificar cambios
         else if (cant_files > 0) process_file_changes(client_socket, directory) ;

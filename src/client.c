@@ -6,13 +6,9 @@
 #include <netdb.h>
 #include <unistd.h>
 
-//#include <dirent.h>
-//#include <sys/stat.h>
-//#include <sys/types.h>
-
 #include "structs.h"
 
-//  PROTOTIPOS DE LAS FUNCIONES POR USAR
+//  PROTOTIPOS DE LAS FUNCIONES POR USAR =======================================
 void get_file(int soc, struct sync_file_message received_packet, int filesize) ;
 void send_file(int soc, char* filename, int size) ;
 void Writen(int fd, void *ptr, size_t nbytes) ;
@@ -24,6 +20,7 @@ void registerFiles(char *directory, Array *files) ;
 void compare(char *directory, Array *added_files, Array *modified_files, Array *deleted_files) ;
 void generateNewName(char *directory, char *oldname, char *newname);
 
+// =============================================================================
 
 /**
  * Crea un socket e intenta conectarse al servidor por medio del hostname.
@@ -205,7 +202,8 @@ void process_modified_files(int socket, Array *modified_files, char *directory)
 
 /**
  * Realiza la inicialización del lado del cliente.
- * 
+ * @param : directory : nombre del directorio que se desea sincronizar
+ * @return : codigo de éxito en la comunicación
  **/
 int init_client(char *hostname, char *directory)
 {
