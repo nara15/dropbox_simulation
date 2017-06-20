@@ -7,6 +7,7 @@
 #include "client.c"
 #include "structs.h"
 
+
 void init_random_seed();
 
 

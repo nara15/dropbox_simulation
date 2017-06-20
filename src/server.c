@@ -40,7 +40,7 @@ int setup()
     //  Preparar la estructura sockaddr_in
     server.sin_family = AF_INET ;
     server.sin_addr.s_addr = INADDR_ANY ;
-    server.sin_port = htons ( 8888 ) ;
+    server.sin_port = htons ( 8889 ) ;
     
     //  Ligar
     if( bind(socket_descriptor,(struct sockaddr *)&server, sizeof(server)) < 0)
@@ -119,7 +119,7 @@ void process_file_changes(int client_socket, char  *directory)
                 
                 compare_modified(directory, &current_files, &files, &modified_files) ;
 
-                printf("Este archivo fue modificado en el cliente %s\n", received_packet.name);
+                printf("MODIFICANDO el archivo %s\n", received_packet.name);
                 
                 int index = findArray(&current_files, current_files.used, received_packet.name) ;
                 file_data file = current_files.array[index] ;

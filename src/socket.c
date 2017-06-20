@@ -1,4 +1,5 @@
 
+#include <fcntl.h>
 #include <string.h>
 #include <stdio.h>
 #include <unistd.h>
@@ -25,18 +26,38 @@ ssize_t Readn(int fd, void *ptr, size_t nbytes) ;
  **/
 void get_file(int soc, struct sync_file_message received_packet, int filesize)
 {
+    struct flock lock ;
+    int fd ;
+    
     int j = 0 ;
     FILE *fp = fopen(received_packet.filename,"ab") ;
-    if (fp == NULL) printf("ERRRRRO AL ABRIR EL ARCHIVO") ;
-    while ( j < filesize )
+    if (fp != NULL) 
     {
-        int bytesReceived = Readn(soc, &received_packet, sizeof(received_packet ) ) ;
-        if (bytesReceived == 0) break ;
-        j += 1024 ;
-        fwrite( received_packet.fileBuff, 1, received_packet.size, fp ) ;
+        // Colocar el bloque al archivo
+        fd = fileno(fp) ;
+        memset(&lock, 0, sizeof(lock));
+        lock.l_type = F_SETLKW;
+        fcntl (fd, F_SETLKW, &lock);
         
+        while ( j < filesize )
+        {
+            int bytesReceived = Readn(soc, &received_packet, sizeof(received_packet ) ) ;
+            if (bytesReceived == 0) break ;
+            j += 1024 ;
+            fwrite( received_packet.fileBuff, 1, received_packet.size, fp ) ;
+            
+        }
+        // Quitar el bloqueo al archivo
+        lock.l_type = F_UNLCK;
+        fcntl (fd, F_SETLKW, &lock);
+        
+        fclose(fp);
     }
-    fclose(fp);
+    else
+    {
+        printf("ERROR al abrir el archivo %s \n", received_packet.filename) ;
+    }
+    
 }
 
 /**
@@ -47,12 +68,22 @@ void get_file(int soc, struct sync_file_message received_packet, int filesize)
  **/
 void send_file(int soc, char* filename, int size)
 {
+    struct flock lock ;
+    int fd ;
     struct sync_file_message m;
     strncpy(m.filename, filename, 1000);
     int j = 0, bytesRead = 0;
     FILE *fp = fopen(filename,"rb");
+    
+    
     if (fp != NULL)
     {
+        // Colocar el bloque al archivo
+        fd = fileno(fp) ;
+        memset(&lock, 0, sizeof(lock));
+        lock.l_type = F_SETLKW;
+        fcntl (fd, F_SETLKW, &lock);
+        
         while (j < size)
         {
             bytesRead = fread(m.fileBuff, 1, 1024, fp) ;
@@ -60,8 +91,13 @@ void send_file(int soc, char* filename, int size)
             Writen(soc, &m, sizeof(m)); 
             j += 1024;
         }
+        
+        // Quitar el bloqueo al archivo
+        lock.l_type = F_UNLCK;
+        fcntl (fd, F_SETLKW, &lock);
+        
+        fclose(fp);
     }
-    fclose(fp);
 }
 
 

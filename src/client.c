@@ -38,7 +38,7 @@ int connect_to_server(char *hostname)
     
     server.sin_addr.s_addr = inet_addr(hostname);
     server.sin_family = AF_INET;
-    server.sin_port = htons( 8888 );
+    server.sin_port = htons( 8889 );
     
     //  Conectarse al servidor
     if (connect(sock , (struct sockaddr *)&server , sizeof(server)) < 0) 
