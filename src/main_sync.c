@@ -7,20 +7,19 @@
 #include "client.c"
 #include "structs.h"
 
+
 void init_random_seed();
 
 
 void actLikeClient(char *directory, char *hostname)
 {
-    printf("This is the client\n");
-	printf("The directory is: %s , and the server is: %s\n", directory, hostname);
+    printf("CLIENTE ======== directorio: %s , y el servidor: %s \n", directory, hostname);
     init_client(hostname, directory);
 }
 
 void actLikeServer(char *directory)
 {
-    printf("This is the server\n");
-	printf("The directory is: %s\n", directory);
+    printf("SERVIDOR ======== directorio: %s \n", directory);
     init_server(directory) ;
 }
 

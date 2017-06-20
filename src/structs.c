@@ -2,6 +2,7 @@
 #include "structs.h"
 #include <string.h>
 
+
  // =============== UTILS FOR DYNAMIC ARRAY ====================================
 
 void initArray(Array *a, size_t initSize)
