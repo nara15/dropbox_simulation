@@ -107,9 +107,8 @@ void send_file(int soc, char* filename, int size)
 ssize_t	writen(int fd, const void *vptr, size_t n)
 {
     size_t		nleft;
-    ssize_t		nwritten;
     const char	*ptr;
-
+    ssize_t		nwritten;
     ptr = vptr;
     nleft = n;
     while (nleft > 0) 
@@ -118,10 +117,8 @@ ssize_t	writen(int fd, const void *vptr, size_t n)
     	{
     	    if (errno == EINTR)
     		nwritten = 0;		/* para volver a llamar write() */
-    	    else
-    		return(-1);		/* error */
+    	    else return(-1);		/* error */
     	}
-    	
     	nleft -= nwritten;
     	ptr   += nwritten;
     }
@@ -140,7 +137,6 @@ ssize_t readn(int fd, void *vptr, size_t n)
     size_t	nleft;
     ssize_t	nread;
     char	*ptr;
-    
     ptr = vptr;
     nleft = n;
     while (nleft > 0)
@@ -163,7 +159,6 @@ ssize_t readn(int fd, void *vptr, size_t n)
 ssize_t Readn(int fd, void *ptr, size_t nbytes)
 {
     ssize_t n;
-    
     if ( (n = readn(fd, ptr, nbytes)) < 0)
 	perror("readn error");
     return(n);
